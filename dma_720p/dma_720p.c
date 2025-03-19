@@ -8,20 +8,13 @@
 // matches the Pico DVI Sock board, which can be soldered onto a Pico 2:
 // https://github.com/Wren6991/Pico-DVI-Sock
 
-#include <stdio.h>
 #include <string.h>
-#include "hardware/clocks.h"
 #include "hardware/dma.h"
 #include "hardware/gpio.h"
-#include "hardware/irq.h"
 #include "hardware/structs/bus_ctrl.h"
 #include "hardware/structs/hstx_ctrl.h"
 #include "hardware/structs/hstx_fifo.h"
-#include "hardware/structs/sio.h"
-#include "pico/multicore.h"
-#include "pico/sem.h"
 #include "pico/stdlib.h"
-#include "pico/rand.h"
 
 #include "images/wallpaper.h"
 

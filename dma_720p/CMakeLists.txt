@@ -9,10 +9,10 @@ target_include_directories(dma_720p PRIVATE
 # pull in common dependencies
 target_link_libraries(dma_720p
         pico_stdlib
-        pico_multicore
-        pico_rand
+#        pico_multicore
+#        pico_rand
         hardware_dma
-        pico_sync
+#        pico_sync
         )
 
 # create map/bin/hex/uf2 file etc.
