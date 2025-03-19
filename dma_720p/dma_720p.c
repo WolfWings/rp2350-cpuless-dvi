@@ -57,8 +57,9 @@
 //
 // Note the 7 instead of 6 because we need to bake in the 'active pixels' command!
 //
-// At 1280 2bpp this ends up 320 bytes for the stride + 28 bytes commands, so ~10%
-// increase in framebuffer size.
+// At 1280 2bpp this ends up 320 bytes for the stride + 28 bytes commands.
+//
+// This is a 8.75% increase in framebuffer size in this case per scanline.
 #define FRAMEBUF_STRIDE_DWORDS ( ( ( MODE_H_ACTIVE_PIXELS / 4 ) / sizeof( uint32_t ) ) + 7 )
 #define FRAMEBUF_STRIDE ( FRAMEBUF_STRIDE_DWORDS * sizeof( uint32_t ) )
 
@@ -84,12 +85,26 @@
 // BACK_PORCH + ACTIVE_PIXELS
 // ...
 //
-// ...so we need 4 per region plus 2 additional ones for the final leftover bit.
+// ...so we need 4 per region plus 2 additional ones for transition, per line.
 
 #define FRAMEBUF_VBLANK_FRONT ( sizeof( uint32_t ) * ( ( 4 * MODE_V_FRONT_PORCH ) + 2 ) )
 #define FRAMEBUF_VBLANK_SYNC ( sizeof( uint32_t ) * ( ( 4 * MODE_V_SYNC_WIDTH ) + 2 ) )
 #define FRAMEBUF_VBLANK_BACK ( sizeof( uint32_t ) * ( ( 4 * MODE_V_BACK_PORCH ) + 2 ) )
 #define FRAMEBUF_PREQUEL ( FRAMEBUF_VBLANK_FRONT + FRAMEBUF_VBLANK_SYNC + FRAMEBUF_VBLANK_BACK )
+
+// Comparing this to the other common 'array of DMA requests' method which requires
+// 8 bytes per DMA request as a scatter-gather, that requires...
+//
+// ( MODE_V_FRONT_PORCH + MODE_V_SYNC_WIDTH + MODE_V_BACK_PORCH + 2 * MODE_V_ACTIVE_LINES + 1 ) * 2
+//
+// ...32-bit words of total memory, comparing against the 1280x720 mode above that totals up to...
+//
+// ( 5 + 6 + 5 + ( 2 * 720 ) + 1 ) * 2 = 2,914 DWORDs, or 11,656 bytes for a total of 242,056 bytes.
+//
+// Compared to the 250,840 bytes 'unrolling' the buffer requires that's only a ~4% increase overall.
+//
+// Comparing the math at 640x480@2bpp greyscale instead we get 92,400 bytes unrolled versus 84,848
+// bytes with the DMA scatter-gather for a ~9% increase overall.
 
 uint8_t __attribute__((aligned(4))) framebuf_raw[ FRAMEBUF_PREQUEL + ( FRAMEBUF_STRIDE * MODE_V_ACTIVE_LINES ) ];
 uint32_t *framebuf_cmds = (uint32_t *)framebuf_raw;
